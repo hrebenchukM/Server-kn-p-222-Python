@@ -28,6 +28,20 @@ def make_lam4()->None:
     x=50
 
 
+strategies = {
+    "arithmetic": lambda d: reduce(lambda acc,b: acc+b, d, 0)/len(d),
+    "geometric": lambda d: reduce(lambda a,b: a*b, d, 1.0) ** (1.0/len(d)),
+    "harmonic": lambda d: len(d)/reduce(lambda acc,b: acc+1/b, d, 0),
+    "median": lambda d: sorted(d)[len(d)//2] if len(d) % 2 == 1 else (sorted(d)[len(d)//2-1]+sorted(d)[len(d)//2])/2
+}
+
+def min_strategy(strategies, data):
+    return min(strategies.items(), key=lambda item: item[1](data))[0]
+
+def max_strategy(strategies, data):
+    return max(strategies.items(), key=lambda item: item[1](data))[0]
+
+
 def main():
     lam1()
     (lambda:print("I am IIFE"))()
@@ -41,14 +55,18 @@ def main():
     lam5=lambda a,b:a+b
     print(lam5(1,2))
     data=(1,2,3,4,5)
-    mean_a = lambda d:reduce(lambda acc,b:acc+b,d,0)/len(d)
-    mean_g = lambda d: reduce(lambda a, b: a*b, d, 1.0) ** (1.0/len(d))
-    mean_h = lambda d:len(d)/reduce(lambda acc,b:acc+1 / b,d,0)
-    print(apply(mean_a, data))  
-    print(apply(mean_g, data))
-    print(apply(mean_h, data))  
+    for name, func in strategies.items():
+        print(f"{name}:", apply(func, data))
+    
+    print("Strategy min :", min_strategy(strategies, data))
+    print("Strategy max :", max_strategy(strategies, data))
+
 
 if __name__ == '__main__':
     main()
 
 
+# Стратегия — это поведенческий паттерн проектирования, 
+# который определяет семейство схожих алгоритмов 
+# и помещает каждый из них в собственный класс,
+#  после чего алгоритмы можно взаимозаменять прямо во время исполнения программы.

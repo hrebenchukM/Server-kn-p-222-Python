@@ -52,9 +52,7 @@ def read_ini(filename: str = "db.ini") -> dict:
     try:
         with open(filename, encoding='utf-8') as file:
             for line in file:
-                if line.startswith('#'):
-                    continue
-                line=line.split('#')[0]  # удаление комментария в конце строки
+                line = line.split('#')[0].split(';')[0] # удаление комментариев
                 if not ':' in line: # пропуск некорректных строк
                     continue
                 pair = line.split(':',1) # розділення на пару ключ-значення
@@ -68,10 +66,12 @@ def read_ini(filename: str = "db.ini") -> dict:
 def read_ini2(filename:str="db.ini") -> dict :
     'Функциональный стиль'
     with open(filename, encoding='utf-8') as file :
-        return { k:v for k,v in (
-            map( str.strip, line.split('#')[0].split(':',1))
-            for line in file if ':' in line 
-        ) }
+      return {
+            k.strip(): v.strip()
+            for line in file
+            if ':' in line.split('#')[0].split(';')[0]
+            for k, v in [line.split('#')[0].split(';')[0].split(':', 1)]
+        }
 
 
 
