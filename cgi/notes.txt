@@ -1,0 +1,55 @@
+CGI - Common Gateway Interface - Інтерфейс спільного шлюзу
+Стандарт (інтерфейс) для веб-серверів, який передбачає
+передачу управління з оброблення запиту до довільного виконавця.
+
+Більшість популярних серверів призначені для однієї технології:
+IIS, Kestrel - .NET
+Tomcat, Wildfly - Java
+Apache - PHP
+В цьому контексті CGI - можливість використання серверів для інших технологій
+
+--Browser(Client)--        ----------------Server----------------
+                           |---web-server---      ---CGI-script---
+
+GET / HTTP/1.1 ---------> { path: '/' }
+                          method: 'GET'         CGI
+                          protocol: 1.1 --------> index.py
+                                                 print("<h1>Hello</h1>")
+<------------------------- + header <------------ print("<h1>World</h1>")
+
+
+
+
+C:\xampp\apache\conf\extra\httpd-vhosts.conf
+
+C:\Users\Lenovo\source\repos\Server-kn-p-222\cgi
+
+
+
+################# KN-P-221 ###########################
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot "C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi"
+    ServerName cgi222.loc
+    ServerAlias www.cgi222.loc
+    ErrorLog "C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi/logs/error.log"
+    CustomLog "C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi/logs/access.log" common
+ <Directory "C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi">
+  AllowOverride All
+  Options -Indexes +ExecCGI
+  AddHandler cgi-script  .py
+  Require all granted
+  DirectoryIndex index.py index.html
+ </Directory>
+</VirtualHost>
+
+
+
+
+
+c:\Windows\System32\drivers\etc\hosts
+
+    127.0.0.1       cgi222.loc
+	::1             cgi222.loc
+	127.0.0.1       www.cgi222.loc
+	::1             www.cgi222.loc
