@@ -33,3 +33,6 @@
 [Wed Nov 12 17:00:29.996360 2025] [cgi:error] [pid 11540:tid 1972] [client ::1:63952] AH01215:     return codecs.charmap_encode(input,self.errors,encoding_table)[0]\r: C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi/index.py
 [Wed Nov 12 17:00:29.996360 2025] [cgi:error] [pid 11540:tid 1972] [client ::1:63952] AH01215:            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r: C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi/index.py
 [Wed Nov 12 17:00:29.996360 2025] [cgi:error] [pid 11540:tid 1972] [client ::1:63952] AH01215: UnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f40d' in position 24: character maps to <undefined>\r: C:/Users/Lenovo/source/repos/Server-kn-p-222/cgi/index.py
+[Wed Nov 12 17:02:46.317902 2025] [cgi:error] [pid 11540:tid 1972] [client ::1:61685] malformed header from script 'index.py': Bad header: <!DOCTYPE html>
+[Wed Nov 12 17:02:54.173123 2025] [cgi:error] [pid 11540:tid 1964] [client ::1:57731] malformed header from script 'index.py': Bad header: <!DOCTYPE html>
+[Wed Nov 12 17:02:54.744320 2025] [cgi:error] [pid 11540:tid 1972] [client ::1:59855] malformed header from script 'index.py': Bad header: <!DOCTYPE html>
