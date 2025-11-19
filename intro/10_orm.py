@@ -1,4 +1,10 @@
-import requests
+# ORM - використання об'єктного представлення даних
+# задача - одержати дані про курси валют з АРІ банку,
+# представити їх у вигляді об'єктів
+
+# надсилання запитів: модуль requests
+import requests   # pip install requests
+
 from datetime import datetime
 
 

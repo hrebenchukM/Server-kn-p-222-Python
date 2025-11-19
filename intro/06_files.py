@@ -3,8 +3,8 @@ def write_file(filename: str = "file.txt") -> None:
     file = None
     try:
         file = open(filename, mode="w", encoding="utf-8")
-        file.write("Latin data\n")
-        file.write("Букви кирилиці\n")
+        file.write("Latin data\n")    # новий рядок не переводиться, символ потрібний у даних
+        file.write("Кириличні дані")  # перевірка того, що необхідно зазначати encoding
         file.flush()
     except OSError as err:
         print("File write error:", err)
@@ -32,10 +32,10 @@ def read_file(filename: str = "file.txt") -> None:
     'Приклад читання файлу з ресурсним блоком'
     try:
         with open(filename, mode="r", encoding="utf-8") as file:
-                #print(file.read())
-            for line in file:
-                print(line)
-                print("---")
+            # print(file.read())  # зчитує весь контент файлу як рядок
+            for line in file :    # ітерація файлу іде по рядках (\n)
+                print(line)       # сам символ '\n' залишається у рядку
+                print('---')
     except OSError as err:
         print("File read error:", err)
     else:
