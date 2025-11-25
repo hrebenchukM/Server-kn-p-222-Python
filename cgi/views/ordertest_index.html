@@ -1,0 +1,37 @@
+<h1>Тестування API: Order</h1>
+<table>
+    <tbody>
+        <tr>
+            <td><button id="api-order-get-button">GET</button></td>
+            <td><pre id="api-order-get-result" class="json-style"></pre></td>
+        </tr>
+        <tr>
+            <td><button
+                id="api-order-post-button"
+                data-body='{"id": 3, "customer": "Марія", "total": 999.99, "status": "new"}'>
+                POST
+            </button></td>
+            <td><pre id="api-order-post-result" class="json-style"></pre></td>
+        </tr>
+        <tr>
+            <td><button
+                id="api-order-put-button"
+                data-body='{"id": 1, "customer": "Марія", "total": 123.45, "status": "updated"}'>
+                PUT
+            </button></td>
+            <td><pre id="api-order-put-result" class="json-style"></pre></td>
+        </tr>
+        <tr>
+            <td><button
+                id="api-order-patch-button"
+                data-body='{"id": 2, "status": "canceled"}'>
+                PATCH
+            </button></td>
+            <td><pre id="api-order-patch-result" class="json-style"></pre></td>
+        </tr>
+        <tr>
+            <td><button id="api-order-delete-button">DELETE</button></td>
+            <td><pre id="api-order-delete-result" class="json-style"></pre></td>
+        </tr>
+    </tbody>
+</table>
