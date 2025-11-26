@@ -22,18 +22,31 @@ function apiButtonClick(e) {
     if(res) {
     let conf = {
         method: apiMethod.toUpperCase(),
+        headers: {
+            // YWRtaW46YWRtaW46    admin:admin
+            // YWRtaW46YWRtaW0=    admin:admin
+            // YWRtaW46YWRtaW4=    admin:admin
+            "Authorization": "Basic YWRtaW46YWRtaW4=",
+            "Custom-Header": "custom-value"
+        }
+
+
     };
     const body = btn.getAttribute("data-body");
     if(body) {
         conf.body = body;
-        conf.headers = {
-            "Content-Type": "application/json; charset=utf-8"
-        };
+        conf.headers["Content-Type"] = "application/json; charset=utf-8";
+
     }
-    fetch(`/${apiName}`, conf).then(r => r.json())
-    .then(j => {
-       res.textContent = JSON.stringify(j, null, 4);
-    })
+    fetch(`/${apiName}`, conf)
+        .then(r => {
+            if(r.status == 200) {
+                r.json().then(j => {res.textContent = JSON.stringify(j, null, 4);});
+            }
+            else {
+                r.text().then(t => {res.innerHTML = t});
+            }
+        })
     }
     else throw resId + " not found";
 }
