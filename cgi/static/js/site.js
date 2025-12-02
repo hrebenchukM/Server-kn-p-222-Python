@@ -1,6 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
+    initTokenTests();
     initApiTests();
 });
+function initTokenTests() {
+    let btn = document.getElementById("api-user-token-button");
+    let res = document.getElementById("api-user-token-result");
+    if(btn) btn.addEventListener('click', () => {
+        fetch(`/user`, {
+            method: 'GET',
+            headers: {  
+                "Authorization": "Basic YWRtaW46YWRtaW4=",
+            }
+        })
+        .then(r => {
+            if(r.status == 200) {
+                r.json().then(j => {
+
+                    let [_, jwtPayload, __] = j.data.split('.');
+
+                    let payloadJson = JSON.parse(
+                        atob(jwtPayload.replace(/-/g, '+').replace(/_/g, '/'))
+                    );
+
+                    res.innerHTML =
+                        `<i id="token">${j.data}</i><pre>` +
+                        JSON.stringify(payloadJson, null, 4) +
+                        `</pre>`;
+
+                });
+
+            }
+            else {
+                r.text().then(t => {res.innerHTML = t});
+            }
+
+        }); 
+    });
+}
 
 function initApiTests() {
     const apiNames = ["user", "order"];
