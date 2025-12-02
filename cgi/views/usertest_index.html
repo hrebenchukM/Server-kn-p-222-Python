@@ -5,8 +5,30 @@
             <td><button id="api-user-get-button">GET</button></td>
             <td><pre id="api-user-get-result" class="json-style"></pre></td>
         </tr>
-        <td><button data-body='{"name": "Марія", "surname": "Заяц" ,"date": {"year": 2004, "month": 12, "day": 10}}'
-            id="api-user-post-button">POST</button></td>
-        <td ><pre class="json-style" id="api-user-post-result"></pre></td>
+
+        <tr>
+            <td>
+                <button 
+                    data-body='{"name": "Марія", "surname": "Заяц" ,"date": {"year": 2004, "month": 12, "day": 10}}'
+                    id="api-user-post-button">POST</button>
+            </td>
+            <td><pre class="json-style" id="api-user-post-result"></pre></td>
+        </tr>
+
+        <tr>
+            <td><button id="api-user-auth-ok-button">Auth OK (admin/admin)</button></td>
+            <td><pre id="api-user-auth-ok-result" class="json-style"></pre></td>
+        </tr>
+
+        <tr>
+            <td><button id="api-user-auth-wrong-pass-button">Wrong password</button></td>
+            <td><pre id="api-user-auth-wrong-pass-result" class="json-style"></pre></td>
+        </tr>
+
+        <tr>
+            <td><button id="api-user-auth-wrong-login-button">Wrong login</button></td>
+            <td><pre id="api-user-auth-wrong-login-result" class="json-style"></pre></td>
+        </tr>
+
     </tbody>
 </table>

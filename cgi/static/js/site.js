@@ -66,3 +66,35 @@ function objToHtml(j, level=0) {
     html += `<br/>${sp}}`;
     return html;
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    initApiTests();
+    initAuthTests();
+});
+
+function initAuthTests() {
+    const tests = [
+        ["api-user-auth-ok-button", "api-user-auth-ok-result",  "Basic YWRtaW46YWRtaW4="],      // admin:admin
+        ["api-user-auth-wrong-pass-button", "api-user-auth-wrong-pass-result", "Basic YWRtaW46d3Jvbmc="], // admin:wrong
+        ["api-user-auth-wrong-login-button", "api-user-auth-wrong-login-result", "Basic d3Jvbmc6YWRtaW4="], // wrong:admin
+    ];
+
+    for (let [btnId, resId, authString] of tests) {
+        let btn = document.getElementById(btnId);
+        if (!btn) continue;
+
+        btn.addEventListener("click", () => {
+            let res = document.getElementById(resId);
+            fetch("/user", {
+                method: "GET",
+                headers: {
+                    "Authorization": authString,
+                    "Custom-Header": "custom-value"
+                }
+            })
+            .then(r => r.json())
+            .then(j => { res.textContent = JSON.stringify(j, null, 4); })
+        });
+    }
+}
