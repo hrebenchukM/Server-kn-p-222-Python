@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     initTokenTests();
     initApiTests();
+    initAuthTests();
+    initTokenAuthTests(); 
 });
+
 function initTokenTests() {
     let btn = document.getElementById("api-user-token-button");
     let res = document.getElementById("api-user-token-result");
@@ -104,10 +107,45 @@ function objToHtml(j, level=0) {
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
-    initApiTests();
-    initAuthTests();
-});
+
+
+function initTokenAuthTests() {
+
+    const tests = [
+        ["api-user-token-ok-button",     "api-user-token-ok-result",     "VALID"],
+        ["api-user-token-wrong-button",  "api-user-token-wrong-result",  "WRONG"],
+        ["api-user-token-broken-button", "api-user-token-broken-result", "BROKEN"],
+    ];
+
+    for (let [btnId, resId, mode] of tests) {
+        let btn = document.getElementById(btnId);
+        if (!btn) continue;
+
+        btn.addEventListener("click", () => {
+            let res = document.getElementById(resId);
+
+            fetch("/user", {
+                method: "GET",
+                headers: { "Authorization": "Basic YWRtaW46YWRtaW4=" }
+            })
+            .then(r => r.json())
+            .then(j => {
+                let token = j.data;
+
+                if (mode === "WRONG") token = token.slice(0, -2) + "xx";
+                if (mode === "BROKEN") token = "12345";
+
+                fetch("/user", {
+                    method: "GET",
+                    headers: { "Authorization": "Bearer " + token }
+                })
+                .then(r => r.json())
+                .then(j => { res.textContent = JSON.stringify(j, null, 4); });
+            });
+        });
+    }
+}
+
 
 function initAuthTests() {
     const tests = [
