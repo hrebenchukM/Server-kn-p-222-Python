@@ -42,7 +42,7 @@ function initTokenTests() {
 }
 
 function initApiTests() {
-    const apiNames = ["user", "order"];
+    const apiNames = ["user", "order","product"];
     const apiMethods = ["get","post","put","patch","delete"];
     for(let apiName of apiNames) {
         for(let apiMethod of apiMethods) {
@@ -59,15 +59,18 @@ function apiButtonClick(e) {
     const resId = `api-${apiName}-${apiMethod}-result`;
     const res = document.getElementById(resId);
     if(res) {
-    let conf = {
-        method: apiMethod.toUpperCase(),
-        headers: {
-            // YWRtaW46YWRtaW46    admin:admin
-            // YWRtaW46YWRtaW0=    admin:admin
-            // YWRtaW46YWRtaW4=    admin:admin
-            "Authorization": "Basic YWRtaW46YWRtaW4=",
-            "Custom-Header": "custom-value"
-        }
+        let tokenElement = document.getElementById("token");
+        let auth = tokenElement ? `Bearer ${tokenElement.innerText}` : "Basic YWRtaW46YWRtaW4=";
+
+        let conf = {
+            method: apiMethod.toUpperCase(),
+            headers: {
+                // YWRtaW46YWRtaW46    admin:admin
+                // YWRtaW46YWRtaW0=    admin:admin
+                // YWRtaW46YWRtaW4=    admin:admin
+                "Authorization": auth,
+                "Custom-Header": "custom-value"
+            }
 
 
     };
