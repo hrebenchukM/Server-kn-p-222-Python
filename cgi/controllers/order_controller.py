@@ -1,90 +1,64 @@
-from models.cgi_request import CgiRequest
+from controllers.controller_rest import RestController, RestStatus
 import json, sys
 
-class OrderController :
 
-    def __init__(self, cgi_request:CgiRequest, dev_mode:bool=False):
-        self.cgi_request = cgi_request
-        self.dev_mode = dev_mode
+class OrderController(RestController):
 
-
-    def service(self) :
-        action_name = "do_" + self.cgi_request.method.lower()
-        try :
-            action = getattr(self, action_name)
-            action()
-        except Exception as err :
-            print("Status: 405 Method Not Allowed\n")
-            if self.dev_mode :
-                print(err)
+    def __init__(self, cgi_request, dev_mode=False):
+        super().__init__(cgi_request, dev_mode)
+        self.rest_response.meta.serviceName += "Order"
 
 
-    def do_get(self) :
-        test_data = {
-            "method": "GET",
-            "info": "Перелік замовлень",
-            "orders": [
-                {
-                    "id": 1,
-                    "customer": "Марія",
-                    "total": 1234.56,
-                    "status": "new"
-                },
-                {
-                    "id": 2,
-                    "customer": "Маша",
-                    "total": 789.00,
-                    "status": "done"
+    def do_get(self):
+        auth_header = self.cgi_request.headers.get("Authorization", None)
+
+        if auth_header:
+            scheme = "Bearer "
+            if not auth_header.startswith(scheme):
+                self.rest_response.status = RestStatus.status401
+                return "Invalid 'Authorization' scheme (Expected 'Bearer')"
+            else:
+
+                token = auth_header[len(scheme):]
+
+                if len(token) == 0:
+                    self.rest_response.status = RestStatus.status401
+                    return "Empty Bearer token"
+
+                return {
+                    "method": "GET",
+                    "info": "Перелік замовлень",
+                    "token": token,
+                    "orders": [
+                        {
+                            "id": 1,
+                            "customer": "Марія",
+                            "total": 1234.56,
+                            "status": "new"
+                        },
+                        {
+                            "id": 2,
+                            "customer": "Маша",
+                            "total": 789.00,
+                            "status": "done"
+                        }
+                    ]
                 }
-            ]
-        }
-        print("Content-Type: application/json; charset=utf-8")
-        print()
-        print(json.dumps(test_data, ensure_ascii=False))
+
+        else:
+            self.rest_response.status = RestStatus.status401
+            return "No 'Authorization' header in request"
 
 
-    def do_post(self) :
+
+    def do_post(self):
         body = json.load(sys.stdin)
+
         test_data = {
             "method": "POST",
             "info": "Створення нового замовлення",
-            "body": body
+            "body": body,
+            "headers": self.cgi_request.headers
         }
-        print("Content-Type: application/json; charset=utf-8")
-        print()
-        print(json.dumps(test_data, ensure_ascii=False))
 
-
-    def do_put(self) :
-        body = json.load(sys.stdin)
-        test_data = {
-            "method": "PUT",
-            "info": "Повне оновлення замовлення",
-            "body": body
-        }
-        print("Content-Type: application/json; charset=utf-8")
-        print()
-        print(json.dumps(test_data, ensure_ascii=False))
-
-
-    def do_patch(self) :
-        body = json.load(sys.stdin)
-        test_data = {
-            "method": "PATCH",
-            "info": "Часткове оновлення замовлення ",
-            "body": body
-        }
-        print("Content-Type: application/json; charset=utf-8")
-        print()
-        print(json.dumps(test_data, ensure_ascii=False))
-
-
-    def do_delete(self) :
-        test_data = {
-            "method": "DELETE",
-            "info": "Видалення замовлення ",
-            "result": "ok"
-        }
-        print("Content-Type: application/json; charset=utf-8")
-        print()
-        print(json.dumps(test_data, ensure_ascii=False))
+        return test_data
