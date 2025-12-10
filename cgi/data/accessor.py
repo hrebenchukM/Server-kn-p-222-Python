@@ -1,65 +1,58 @@
-import base64
-import hmac
-import uuid
-import data.helper as helper, json,datetime,hashlib, mysql.connector,os
+import base64, data.helper as helper, datetime, hashlib, hmac, json, mysql.connector, os, uuid
 
 class DataAccessor:
     def __init__(self, ini_file:str='/data/db_ini.json') :
         try :
             path = os.path.abspath('./')
-            with open(path+ini_file, mode="r", encoding='utf-8') as file :
+            with open(path + ini_file, mode="r", encoding='utf-8') as file :
                 ini_data = json.load(file)
             self.db_connection = mysql.connector.connect(**ini_data)
         except Exception as err :
             raise RuntimeError(str(err))
-        
+
+
     def authenticate(self, login:str, password:str) :
-            sql = """SELECT 
-            * 
-            FROM user_accesses ua 
-                JOIN users u ON ua.user_id = u.user_id
-            WHERE 
-                ua.ua_login = ? """
-            with self.db_connection.cursor(prepared=True, dictionary=True) as cursor :
-                cursor.execute( sql, (login,) )
-                user = next(cursor, None)
-            if user and user['ua_dk'] == helper.kdf(password, user['ua_salt']) :
-                # return user
-                # Генеруємо токен:
-                # Формуємо дані
-                token_header = {
+        sql = """SELECT 
+        * 
+        FROM user_accesses ua 
+            JOIN users u ON ua.user_id = u.user_id
+        WHERE 
+            ua.ua_login = ? """
+        with self.db_connection.cursor(prepared=True, dictionary=True) as cursor :
+            cursor.execute( sql, (login,) )
+            user = next(cursor, None)
+        if user and user['ua_dk'] == helper.kdf(password, user['ua_salt']) :
+            # return user
+            # генеруємо токен:
+            # формуємо дані
+            token_header = {
                 "alg": "HS256",
                 "typ": "JWT"
-                }
-                now = datetime.datetime.now()
-               
-                token_payload = {
-                    'jti': uuid.uuid4(),
-                    'sub': user['user_id'],
-                    'iat': now.timestamp(),
-                    'exp': int((now + datetime.timedelta(minutes=1)).timestamp()),
-                    'name': user['user_name'],
-                    'email': user['user_email']
-                }
-
-                token_body = (
-                    base64.b64encode(json.dumps(token_header).encode()).decode("ascii")
-                    + '.'
-                    + base64.b64encode(json.dumps(token_payload, ensure_ascii=False,default=str).encode()).decode("ascii")
-                )
-
-                token_signature = base64.b64encode(
-                    hmac.new(
-                        b"secret",
-                        token_body.encode(),
-                        hashlib.sha256
-                    ).digest()
-                ).decode("ascii")
-
-               # sql = "INSERT INTO tokens(token_id, ua_id, token_issued_at, token_expired_at) VALUES(?,?,?,?)"
+            }
+            now = datetime.datetime.now()
+            token_payload = {
+                'jti': uuid.uuid4(),
+                'sub': user['user_id'],
+                'iat': int(now.timestamp()),
+                'exp': int((now + datetime.timedelta(minutes=1)).timestamp()),
+                'name': user['user_name'],
+                'email': user['user_email'],
+            }
+            token_body = ( 
+                base64.urlsafe_b64encode(json.dumps(token_header).encode()).decode("ascii")
+                + '.' 
+                + base64.urlsafe_b64encode(json.dumps(token_payload, ensure_ascii=False, default=str).encode()).decode("ascii")
+            )
+            token_signature = base64.urlsafe_b64encode( 
+                hmac.new(
+                    b"secret",
+                    token_body.encode(),
+                    hashlib.sha256
+                ).digest()
+            ).decode("ascii")
+            # sql = "INSERT INTO tokens(token_id, ua_id, token_issued_at, token_expired_at) VALUES(?,?,?,?) "
             return token_body + '.' + token_signature
-            return None
-
+        return None
 
     
     def install(self, with_seed:bool=False) -> bool :
@@ -196,4 +189,3 @@ class DataAccessor:
           COLLATE utf8mb4_unicode_ci"""
         with self.db_connection.cursor() as cursor :
             cursor.execute(sql)
-
