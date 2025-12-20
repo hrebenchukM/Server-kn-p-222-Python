@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    initTokenTests();
     initApiTests();
-    initAuthTests();
-    initTokenAuthTests(); 
+    initTokenTests();
 });
 
 function initTokenTests() {
@@ -17,33 +15,23 @@ function initTokenTests() {
         })
         .then(r => {
             if(r.status == 200) {
-                r.json().then(j => {
-
+                r.json().then(j => {  
+                    console.log(j);                  
                     let [_, jwtPayload, __] = j.data.split('.');
-
-                    let payloadJson = JSON.parse(
-                        atob(jwtPayload.replace(/-/g, '+').replace(/_/g, '/'))
-                    );
-
-                    res.innerHTML =
-                        `<i id="token">${j.data}</i><pre>` +
-                        JSON.stringify(payloadJson, null, 4) +
-                        `</pre>`;
-
+                    res.innerHTML = `<i id="token">${j.data}</i><br/>` + 
+                        objToHtml(JSON.parse(atob(jwtPayload)));
                 });
-
             }
             else {
                 r.text().then(t => {res.innerHTML = t});
-            }
-
-        }); 
+            }            
+        });        
     });
 }
 
 function initApiTests() {
-    const apiNames = ["user", "order","product"];
-    const apiMethods = ["get","post","put","patch","delete"];
+    const apiNames = ["user", "product"];
+    const apiMethods = ["get", "post"];
     for(let apiName of apiNames) {
         for(let apiMethod of apiMethods) {
             let id = `api-${apiName}-${apiMethod}-button`;
@@ -51,6 +39,60 @@ function initApiTests() {
             if(btn) btn.addEventListener('click', apiButtonClick);
         }
     }
+    for(let btn of document.querySelectorAll('[data-test]')) {
+        btn.addEventListener('click', apiTestClick);
+    }
+}
+
+function apiTestClick(e) {
+    let btn = e.target.closest('[data-test]');
+    if(!btn) throw "closest('[data-test]') not found";
+    let testAttr = btn.getAttribute('data-test');
+    let res = btn.closest("tr").querySelector('.test-result');
+    if(!res) throw ".test-result not found";
+    // res.innerHTML =  objToHtml(testAttr);
+    
+    fetch("/user?test=" + testAttr, {
+        method: 'TEST',
+    }).then(r => r.json()).then(j => {
+        res.innerHTML = `<p>token: ${j.data}</p>`;
+        fetch("/product", {
+             headers: {  
+                "Authorization": `Bearer ${j.data}`,
+            }
+        }).then(r => r.json()).then(j => {
+            switch(testAttr) {
+                case 'nbf': 
+                    report = {};
+                    let res = typeof j.meta.auth != 'undefined';
+                    let key = `<span class="test-res-${res}">у відповіді мають бути метадані з полем 'auth'</span>`;
+                    report[key] = res ? "++" : "--";
+
+                    res = typeof j.meta.auth.status != 'undefined' && j.meta.auth.data != 'undefined';
+                    key = `<span class="test-res-${res}">у полі 'auth' мають бути два полі: 'status' i 'data'</span>`;
+                    report[key] = res ? "++" : "--";
+                    // поле 'status' повинно дорівнювати false
+                    // поле 'data' повинно містити слово 'nbf'                    
+                    break;
+                    // TODO додати загальний статус тестування: чи пройдені всі тести
+
+                    /*
+                    Д.З. Реалізувати детальний звіт тестування сервісу перевірки токенів (авторизації)
+                    у режимі "ехр"
+                    - у відповіді мають бути метадані з полем 'auth'
+                    - у полі 'auth' мають бути два полі: 'status' i 'data
+                    - поле 'status' повинно дорівнювати false (зауважити, що порівння з false може пройти null, 0 тощо)
+                    - поле 'data' повинно містити слово 'exp', але не як частина іншого слова (на кшталт expert) 
+                    - у полі 'data' повинно розпізаватись число (кількість секунд)
+                    */
+
+                default: throw "testAttr not recognized: " + testAttr;
+            }
+            res.innerHTML += objToHtml(report);
+            res.innerHTML += "<hr/>";
+            res.innerHTML += objToHtml(j);
+        });
+    });
 }
 
 function apiButtonClick(e) {
@@ -61,117 +103,55 @@ function apiButtonClick(e) {
     if(res) {
         let tokenElement = document.getElementById("token");
         let auth = tokenElement ? `Bearer ${tokenElement.innerText}` : "Basic YWRtaW46YWRtaW4=";
-
         let conf = {
             method: apiMethod.toUpperCase(),
-            headers: {
-                // YWRtaW46YWRtaW46    admin:admin
-                // YWRtaW46YWRtaW0=    admin:admin
-                // YWRtaW46YWRtaW4=    admin:admin
+            headers: {  
+                // YWRtaW06YWRtaW4= admim:admin
+                // YWRtaW46YWRtaW0= admin:admim
+                // YWRtaW46YWRtaW4= admin:admin
                 "Authorization": auth,
                 "Custom-Header": "custom-value"
             }
-
-
-    };
-    const body = btn.getAttribute("data-body");
-    if(body) {
-        conf.body = body;
-        conf.headers["Content-Type"] = "application/json; charset=utf-8";
-
-    }
-    fetch(`/${apiName}`, conf)
+        };
+        /*
+        Д.З. Реалізувати на тестовій сторінці API User
+        щонайменше три кнопки для тестування автентифікації:
+            правильний логін - неправильний пароль
+            правильний пароль - неправильний логін
+            правильне все
+        до звіту додати скріншот(и) результатів роботи кнопок    
+        */
+        const body = btn.getAttribute("data-body");
+        if(body) {
+            conf.body = body;
+            conf.headers["Content-Type"] = "application/json; charset=utf-8";
+        }
+        fetch(`/${apiName}`, conf)
         .then(r => {
             if(r.status == 200) {
-                r.json().then(j => {res.textContent = JSON.stringify(j, null, 4);});
+                r.json().then(j => {res.innerHTML = objToHtml(j)});
             }
             else {
                 r.text().then(t => {res.innerHTML = t});
-            }
-        })
+            }            
+        });        
     }
     else throw resId + " not found";
 }
 
-
 function objToHtml(j, level=0) {
+    if(typeof(j)=="string") return j.replace('<', '&lt;');
     let sp = "&emsp;".repeat(level);
     let html = "{<br/>";
     html += Object.keys(j).map(k => {
-        let val = typeof j[k] == 'object' ? objToHtml(j[k], level + 1) : j[k];
-        return `${sp}&emsp;${k}: ${val}<br/>`;
+        let val = j[k] && typeof j[k] == 'object' ? objToHtml(j[k], level + 1) : j[k];
+        return `${sp}&emsp;${k}: ${val}`;
     }).join(",<br/>");
     // for(let k in j) {
     //     let val = typeof j[k] == 'object' ? objToHtml(j[k], level + 1) : j[k];
-    //     html += `${sp}&emsp;${k}: ${val}<br/>`;
+    //     html += `${sp}&emsp;${k}: ${val}<br/>`
     // }
     html += `<br/>${sp}}`;
     return html;
 }
 
-
-
-
-function initTokenAuthTests() {
-
-    const tests = [
-        ["api-user-token-ok-button",     "api-user-token-ok-result",     "VALID"],
-        ["api-user-token-wrong-button",  "api-user-token-wrong-result",  "WRONG"],
-        ["api-user-token-broken-button", "api-user-token-broken-result", "BROKEN"],
-    ];
-
-    for (let [btnId, resId, mode] of tests) {
-        let btn = document.getElementById(btnId);
-        if (!btn) continue;
-
-        btn.addEventListener("click", () => {
-            let res = document.getElementById(resId);
-
-            fetch("/user", {
-                method: "GET",
-                headers: { "Authorization": "Basic YWRtaW46YWRtaW4=" }
-            })
-            .then(r => r.json())
-            .then(j => {
-                let token = j.data;
-
-                if (mode === "WRONG") token = token.slice(0, -2) + "xx";
-                if (mode === "BROKEN") token = "12345";
-
-                fetch("/user", {
-                    method: "GET",
-                    headers: { "Authorization": "Bearer " + token }
-                })
-                .then(r => r.json())
-                .then(j => { res.textContent = JSON.stringify(j, null, 4); });
-            });
-        });
-    }
-}
-
-
-function initAuthTests() {
-    const tests = [
-        ["api-user-auth-ok-button", "api-user-auth-ok-result",  "Basic YWRtaW46YWRtaW4="],      // admin:admin
-        ["api-user-auth-wrong-pass-button", "api-user-auth-wrong-pass-result", "Basic YWRtaW46d3Jvbmc="], // admin:wrong
-        ["api-user-auth-wrong-login-button", "api-user-auth-wrong-login-result", "Basic d3Jvbmc6YWRtaW4="], // wrong:admin
-    ];
-
-    for (let [btnId, resId, authString] of tests) {
-        let btn = document.getElementById(btnId);
-        if (!btn) continue;
-
-        btn.addEventListener("click", () => {
-            let res = document.getElementById(resId);
-            fetch("/user", {
-                method: "GET",
-                headers: {
-                    "Authorization": authString,
-                    "Custom-Header": "custom-value"
-                }
-            })
-            .then(r => r.json())
-            .then(j => { res.textContent = JSON.stringify(j, null, 4); })
-        });
-    }
-}

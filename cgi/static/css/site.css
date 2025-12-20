@@ -51,3 +51,14 @@ button:hover {
     margin-bottom: 10px;
     word-break: break-all;
 }
+
+.test-res-true {
+    color: lime;
+}
+
+.test-res-false {
+    color: maroon;
+}
+.test-res-error {
+    color: orange;
+}

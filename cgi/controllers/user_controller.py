@@ -1,53 +1,98 @@
 from controllers.controller_rest import RestController, RestStatus
-import json, sys, base64
+import datetime, json, sys, time
 from data.accessor import DataAccessor
+import data.helper as helper
 
 
+class UserController(RestController) :
 
-class UserController(RestController):
-
-    def __init__(self, cqi_request, dev_mode = False):
-        super().__init__(cqi_request, dev_mode)
+    def __init__(self, cgi_request, dev_mode = False):
+        super().__init__(cgi_request, dev_mode)
         self.rest_response.meta.serviceName += "User"
 
-    def do_get(self):
-        auth_header = self.cgi_request.headers.get('Authorization', None)
-        
-        if auth_header:
-            scheme = 'Basic '
-            if not auth_header.startswith(scheme):
-                self.rest_response.status = RestStatus.status401
-                return "Invalid 'Authorization' scheme (Expected 'Basic')"
-            else:
-                try: 
-                    encoded_creds = auth_header[len(scheme):]
-                    credentials = base64.b64decode(encoded_creds.encode()).decode("utf-8")
-                except Exception as err: 
-                    self.rest_response.status = RestStatus.status401
-                    return str(err)
-                
-                try:
-                    (login, password) = credentials.split(':')
-                except ValueError:
-                    self.rest_response.status = RestStatus.status401
-                    return "Invalid credential format"
 
-                data_accessor = DataAccessor()
-                token = data_accessor.authenticate(login, password) 
-                
-                if token is None:
-                    self.rest_response.status = RestStatus.status401
-                    return "Invalid login or password"
-                else:
-                    return token
-        else:
+    def do_get(self) :
+        # перевіряємо автентифікацію
+        try :
+            (login, password) = helper.authenticate_request(self.cgi_request)
+        except ValueError as err :
             self.rest_response.status = RestStatus.status401
-            return "No 'Authorization' header in request"
+            return str(err)
+        data_accessor = DataAccessor()
+        user = data_accessor.authenticate(login, password)
+        if user is None :
+            self.rest_response.status = RestStatus.status401
+            return "Credentials rejected"
+        # генеруємо токен:
+        # token = helper.compose_jwt(              # Д.З. Реалізувати метод helper.jwt_for_user(user)
+        #     sub=user['user_id'],                 # який візьме на себе формалізм роботи з утворення
+        #     claims={                             # JWT за об'єктом БД 'user'
+        #         'name': user['user_name'],       # Внести зміни до контролера, перевірити роботу
+        #         'email': user['user_email'],     # 
+        #     }                                    # 
+        #     #,iat=int(time.time() + 100500)
+        #     #, exp=None, 
+        #     # nbf = int(time.time() + 100500)
+        # )
+        token = helper.jwt_for_user(user)
 
-    def do_post(self):
+        # Якщо є потреба зареєструвати токен, то слід передати його до data_accessor
+        return token
+        
+
+    def do_post(self) :
         test_data = {
-            "cyrr": "Привет мир",
+            "cyrr": "Вітання усім!",
             "body": json.load(sys.stdin),
-            "headers": self.cgi_request.headers,
+            "headers": self.cgi_request.headers
         }
         return test_data
+    
+
+    def do_test(self):
+        test = self.cgi_request.query.get("test")
+        if test == 'nbf' :
+            return helper.compose_jwt(           
+                sub='test-iser-id',              
+                claims={                          
+                    'name': 'test-iser-name',    
+                    'email': 'test-iser-id-email',  
+                },
+                nbf = int(time.time() + 100500)
+            )
+        elif test == 'exp' :
+            return helper.compose_jwt(           
+                sub='test-iser-id',              
+                claims={                          
+                    'name': 'test-iser-name',    
+                    'email': 'test-iser-id-email',  
+                },
+                exp = int(time.time() - 100)
+            )
+        
+        if test == 'no-auth' :
+            # клієнт не передасть Authorization взагалі
+            return ""
+
+        if test == 'bad-scheme' :
+            # повертаємо валідний JWT, але клієнт використає неправильну схему
+            return helper.compose_jwt(
+                sub='test-user-id',
+                claims={
+                    'name': 'test-user-name',
+                    'email': 'test-user-email',
+                }
+            )
+
+        if test == 'no-dot' :
+            # токен без символу "."
+            return "thisisnotajwt"
+
+        if test == 'bad-b64' :
+            # header не Base64URL
+            return "@@@.payload.signature"
+
+        return "Unrecognized"
+             
+
+

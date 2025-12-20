@@ -3,56 +3,47 @@
     <tbody>
         <tr>
             <td><button id="api-user-token-button">Token</button></td>
-            <td id="api-user-token-result"class="json-style"></td>
+            <td id="api-user-token-result"></td>
         </tr>
         <tr>
             <td><button id="api-product-get-button">Product</button></td>
-            <td><pre id="api-product-get-result" class="json-style"></pre></td>
+            <td id="api-product-get-result"></td>
         </tr>
-
-        <tr>
-            <td><button id="api-user-token-ok-button">Token OK</button></td>
-            <td><pre id="api-user-token-ok-result" class="json-style"></pre></td>
-        </tr>
-
-        <tr>
-            <td><button id="api-user-token-wrong-button">Token Wrong Signature</button></td>
-            <td><pre id="api-user-token-wrong-result" class="json-style"></pre></td>
-        </tr>
-
-        <tr>
-            <td><button id="api-user-token-broken-button">Token Broken</button></td>
-            <td><pre id="api-user-token-broken-result" class="json-style"></pre></td>
-        </tr>
-
         <tr>
             <td><button id="api-user-get-button">GET</button></td>
-            <td><pre id="api-user-get-result" class="json-style"></pre></td>
+            <td id="api-user-get-result"></td>
         </tr>
+        <tr>
+            <td><button data-body='{"name": "Користувач", "surname": "Досвідчений", "date": {"year": 2000, "month": 3, "day": 10}}'
+                 id="api-user-post-button">POST</button></td>
+            <td id="api-user-post-result"></td>
+        </tr>
+        <tr>
+    <td><button data-test="no-auth">TEST no Authorization</button></td>
+    <td class="test-result"></td>
+</tr>
+<tr>
+    <td><button data-test="bad-scheme">TEST bad scheme</button></td>
+    <td class="test-result"></td>
+</tr>
+<tr>
+    <td><button data-test="no-dot">TEST no dot</button></td>
+    <td class="test-result"></td>
+</tr>
+<tr>
+    <td><button data-test="bad-b64">TEST bad base64</button></td>
+    <td class="test-result"></td>
+</tr>
 
         <tr>
-            <td>
-                <button 
-                    data-body='{"name": "Марія", "surname": "Заяц" ,"date": {"year": 2004, "month": 12, "day": 10}}'
-                    id="api-user-post-button">POST</button>
-            </td>
-            <td><pre class="json-style" id="api-user-post-result"></pre></td>
+            <td><button data-test="nbf">TEST nbf</button></td>
+            <td class="test-result"></td>
         </tr>
-
         <tr>
-            <td><button id="api-user-auth-ok-button">Auth OK (admin/admin)</button></td>
-            <td><pre id="api-user-auth-ok-result" class="json-style"></pre></td>
+            <td><button data-test="exp">TEST exp</button></td>
+            <td class="test-result"></td>
         </tr>
 
-        <tr>
-            <td><button id="api-user-auth-wrong-pass-button">Wrong password</button></td>
-            <td><pre id="api-user-auth-wrong-pass-result" class="json-style"></pre></td>
-        </tr>
-
-        <tr>
-            <td><button id="api-user-auth-wrong-login-button">Wrong login</button></td>
-            <td><pre id="api-user-auth-wrong-login-result" class="json-style"></pre></td>
-        </tr>
-
+        
     </tbody>
 </table>
