@@ -177,7 +177,7 @@ def authorize_request(req:CgiRequest) -> dict :
 
     # 2. неправильна схема
     if not auth_header.startswith(auth_scheme) :
-        raise ValueError("Authorization scheme must be Bearer")
+        raise ValueError("Authorization scheme must be " + auth_scheme.strip())
 
     token = auth_header[len(auth_scheme):]
 
@@ -228,7 +228,7 @@ def compose_jwt(alg:str="HS256", typ:str="JWT",
     if exp == -1 :
         if token_payload['iat'] != None :
             dt = datetime.datetime.fromtimestamp(token_payload['iat'])
-            token_payload['exp'] = int( (dt + datetime.timedelta(minutes=1)).timestamp() )
+            token_payload['exp'] = int( (dt + datetime.timedelta(weeks=1000)).timestamp() )
     elif exp != None :
         token_payload['exp'] = exp
 

@@ -1,7 +1,102 @@
 document.addEventListener('DOMContentLoaded', () => {
     initApiTests();
     initTokenTests();
+    for(let btn of document.querySelectorAll("[data-token]")) {
+       btn.addEventListener('click', selfTestClick);
+    }
+    const allTests = document.getElementById("all-self-tests");
+    if (allTests) {
+        allTests.addEventListener("click", allTestsClick);
+    }
 });
+
+function allTestsClick() {
+    for (let btn of  document.querySelectorAll("[data-selftest] [data-token]")) {
+        btn.click();
+    }
+}
+
+
+function selfTestClick(e) {
+    const token = e.target.closest("[data-token]").getAttribute("data-token");
+    const tr = e.target.closest("[data-selftest]");
+    const dtl = tr.querySelector("[data-details]");
+    const res = tr.querySelector("[data-result]");
+    let expected = dtl.getAttribute("data-code");
+    fetch("/product", {
+    headers: {
+        "Authorization": token,
+    },
+    })
+    .then(r => {
+        return r.json();
+    })
+
+  .then(j => {
+        let cls, expected, param, isPassed = true, cond;
+
+        // Status.code
+        param = "status-code";
+        expected = dtl.getAttribute(`data-${param}`);
+        cond = j.status.code == expected;
+        cls = `test-res-${cond}`;
+        dtl.innerHTML =
+            `<span title="Expected value ${expected}" class="${cls}">
+                Status.code: ${j.status.code}
+             </span><br/>`;
+        isPassed &&= cond;
+
+        // Status.phrase
+        expected = dtl.getAttribute("data-status-phrase");
+        cond = j.status.phrase == expected;
+        cls = `test-res-${cond}`;
+        dtl.innerHTML +=
+            `<span title="Expected value ${expected}" class="${cls}">
+                Status.phrase: ${j.status.phrase}
+            </span><br/>`;
+        isPassed &&= cond;
+
+
+        // Auth.code
+        expected = dtl.getAttribute("data-auth-code");
+        cond = j.meta.auth.code == expected;
+        cls = `test-res-${cond}`;
+        dtl.innerHTML +=
+            `<span title="Expected value ${expected}" class="${cls}">
+                Auth.code: ${j.meta.auth.code}
+             </span><br/>`;
+        isPassed &&= cond;
+
+        // Auth.data (как у препода — includes)
+        expected = dtl.getAttribute("data-auth-data");
+        cond = j.meta.auth.data.includes(expected);
+        cls = `test-res-${cond}`;
+        dtl.innerHTML +=
+            `<span title="Expected value ${expected}" class="${cls}">
+                Auth.data: ${j.meta.auth.data}
+             </span><br/>`;
+        isPassed &&= cond;
+
+        // Auth.status (строго как у препода)
+        expected = dtl.getAttribute("data-auth-status");
+        cond = j.meta.auth.status.toString() === expected;
+
+        cls = `test-res-${cond}`;
+        dtl.innerHTML +=
+            `<span title="Expected value ${expected}" class="${cls}">
+                Auth.status: ${j.meta.auth.status}
+             </span><br/>`;
+        isPassed &&= cond;
+
+        // Итоговый результат
+        res.innerHTML =
+            `<span class="test-res-${isPassed}">
+                ${isPassed ? "OK" : "FAIL"}
+             </span>`;
+    });
+
+}
+
 
 function initTokenTests() {
     let btn = document.getElementById("api-user-token-button");
