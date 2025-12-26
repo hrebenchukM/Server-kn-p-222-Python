@@ -30,7 +30,7 @@ function initTokenTests() {
 }
 
 function initApiTests() {
-    const apiNames = ["user", "product"];
+    const apiNames = ["user", "product", "order"];
     const apiMethods = ["get", "post"];
     for(let apiName of apiNames) {
         for(let apiMethod of apiMethods) {

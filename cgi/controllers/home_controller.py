@@ -41,6 +41,7 @@ class HomeController :
             <h1>Інтерфейс спільного шлюзу (CGI)</h1>
             <a href="/home/privacy">Політика конфіденційності</a><br/>
             <a href="/usertest">Тестування API: User</a><br/>
+                     
             {envs}
             {qp}
             {hdrs}

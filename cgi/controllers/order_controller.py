@@ -1,5 +1,6 @@
-from controllers.controller_rest import RestController, RestStatus
-import json, sys
+from controllers.controller_rest import RestController, RestStatus, RestAuth
+import json, sys, time
+from data.helper import authorize_request
 
 
 class OrderController(RestController):
@@ -10,55 +11,61 @@ class OrderController(RestController):
 
 
     def do_get(self):
-        auth_header = self.cgi_request.headers.get("Authorization", None)
+        try:
+            payload = authorize_request(self.cgi_request)
 
-        if auth_header:
-            scheme = "Bearer "
-            if not auth_header.startswith(scheme):
-                self.rest_response.status = RestStatus.status401
-                return "Invalid 'Authorization' scheme (Expected 'Bearer')"
-            else:
+            # часові поля JWT
+            iat = payload.get("iat", None)
+            exp = payload.get("exp", None)
+            nbf = payload.get("nbf", None)
 
-                token = auth_header[len(scheme):]
+            # якщо немає жодного часового поля — токен невалідний
+            if not any((iat, exp, nbf)):
+                raise ValueError("Invalid token: missing time fields")
 
-                if len(token) == 0:
-                    self.rest_response.status = RestStatus.status401
-                    return "Empty Bearer token"
+            now = time.time()
 
-                return {
-                    "method": "GET",
-                    "info": "Перелік замовлень",
-                    "token": token,
-                    "orders": [
-                        {
-                            "id": 1,
-                            "customer": "Марія",
-                            "total": 1234.56,
-                            "status": "new"
-                        },
-                        {
-                            "id": 2,
-                            "customer": "Маша",
-                            "total": 789.00,
-                            "status": "done"
-                        }
-                    ]
-                }
+            # 1️⃣ nbf
+            if nbf and nbf > now:
+                raise ValueError("nbf")
+
+            # 2️⃣ exp
+            if exp and exp < now:
+                raise ValueError("exp")
+
+            # 3️⃣ iat (якщо нема nbf і exp)
+            if not nbf and not exp and iat > now:
+                raise ValueError("iat")
+
+        except ValueError as err:
+            self.rest_response.status = RestStatus.status401
+            self.rest_response.meta.auth = RestAuth(False, str(err))
+            return "Unauthorized"
 
         else:
-            self.rest_response.status = RestStatus.status401
-            return "No 'Authorization' header in request"
+            self.rest_response.meta.auth = RestAuth(True, payload.get("sub"))
 
+        return {
+            "method": "GET",
+            "info": "Перелік замовлень",
+            "orders": [
+                {"id": 1, "customer": "Марія", "total": 1234.56, "status": "new"},
+                {"id": 2, "customer": "Маша", "total": 789.00, "status": "done"}
+            ]
+        }
 
 
     def do_post(self):
-        body = json.load(sys.stdin)
+        try:
+            payload = authorize_request(self.cgi_request)
+            self.rest_response.meta.auth = RestAuth(True, payload.get("sub"))
+        except ValueError as err:
+            self.rest_response.status = RestStatus.status401
+            self.rest_response.meta.auth = RestAuth(False, str(err))
+            return "Unauthorized"
 
-        test_data = {
+        return {
             "method": "POST",
             "info": "Створення нового замовлення",
-            "body": body,
-            "headers": self.cgi_request.headers
+            "body": json.load(sys.stdin)
         }
-
-        return test_data

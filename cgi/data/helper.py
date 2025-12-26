@@ -137,8 +137,26 @@ def validate_jwt(jwt:str) -> dict :
     if not isinstance(payload, dict) :
         raise ValueError("JWT payload must be valid JSON object")
 
-    return payload
 
+    now = int(datetime.datetime.now().timestamp())
+
+    iat = payload.get("iat")
+    exp = payload.get("exp")
+    nbf = payload.get("nbf")
+
+    if not any((iat, exp, nbf)):
+        raise ValueError("time")
+
+    if nbf and nbf > now:
+        raise ValueError("nbf")
+
+    if exp and exp < now:
+        raise ValueError("exp")
+
+    if not nbf and not exp and iat and iat > now:
+        raise ValueError("iat")
+    
+    return payload
 
 def authorize_request(req:CgiRequest) -> dict :
     '''
