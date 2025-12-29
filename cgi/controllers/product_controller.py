@@ -22,8 +22,13 @@ class ProductController(RestController) :
             if nbf and nbf > t:                 
                 raise ValueError("Token not active yet (nbf violation)")
             # 2. exp - якщо у минулому, то відхиляємо з втратою чинності
+            # if exp and exp < t:
+            #     raise ValueError("Token expired " + str(t - exp) + " sec ago")
             if exp and exp < t:
-                raise ValueError("Token expired " + str(t - exp) + " sec ago")
+                dt = int(t - exp)
+                raise ValueError("exp " + str(dt))
+
+
             # 3. якщо немає ані nbf, ані ехр, то перевіряємо, що іаt знаходиться
             # у минулому
             if not nbf and not exp and iat > t:                 

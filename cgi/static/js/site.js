@@ -138,51 +138,83 @@ function initApiTests() {
         btn.addEventListener('click', apiTestClick);
     }
 }
-
 function apiTestClick(e) {
     let btn = e.target.closest('[data-test]');
     if(!btn) throw "closest('[data-test]') not found";
+
     let testAttr = btn.getAttribute('data-test');
     let res = btn.closest("tr").querySelector('.test-result');
     if(!res) throw ".test-result not found";
-    // res.innerHTML =  objToHtml(testAttr);
-    
+
     fetch("/user?test=" + testAttr, {
         method: 'TEST',
-    }).then(r => r.json()).then(j => {
+    })
+    .then(r => r.json())
+    .then(j => {
         res.innerHTML = `<p>token: ${j.data}</p>`;
+
         fetch("/product", {
-             headers: {  
+            headers: {
                 "Authorization": `Bearer ${j.data}`,
             }
-        }).then(r => r.json()).then(j => {
+        })
+        .then(r => r.json())
+        .then(j => {
+
+            let report = {};
+            let ok, key;
+
             switch(testAttr) {
-                case 'nbf': 
-                    report = {};
-                    let res = typeof j.meta.auth != 'undefined';
-                    let key = `<span class="test-res-${res}">у відповіді мають бути метадані з полем 'auth'</span>`;
-                    report[key] = res ? "++" : "--";
 
-                    res = typeof j.meta.auth.status != 'undefined' && j.meta.auth.data != 'undefined';
-                    key = `<span class="test-res-${res}">у полі 'auth' мають бути два полі: 'status' i 'data'</span>`;
-                    report[key] = res ? "++" : "--";
-                    // поле 'status' повинно дорівнювати false
-                    // поле 'data' повинно містити слово 'nbf'                    
+                case 'nbf':
+                    ok = typeof j.meta != 'undefined' && typeof j.meta.auth != 'undefined';
+                    key = `<span class="test-res-${ok}">у відповіді мають бути метадані з полем 'auth'</span>`;
+                    report[key] = ok ? "++" : "--";
+
+                    ok = ok
+                        && typeof j.meta.auth.status != 'undefined'
+                        && typeof j.meta.auth.data != 'undefined';
+                    key = `<span class="test-res-${ok}">у полі 'auth' мають бути два полі: 'status' i 'data'</span>`;
+                    report[key] = ok ? "++" : "--";
+
                     break;
-                    // TODO додати загальний статус тестування: чи пройдені всі тести
 
-                    /*
-                    Д.З. Реалізувати детальний звіт тестування сервісу перевірки токенів (авторизації)
-                    у режимі "ехр"
-                    - у відповіді мають бути метадані з полем 'auth'
-                    - у полі 'auth' мають бути два полі: 'status' i 'data
-                    - поле 'status' повинно дорівнювати false (зауважити, що порівння з false може пройти null, 0 тощо)
-                    - поле 'data' повинно містити слово 'exp', але не як частина іншого слова (на кшталт expert) 
-                    - у полі 'data' повинно розпізаватись число (кількість секунд)
-                    */
+                case 'exp':
+                    ok = typeof j.meta != 'undefined' && typeof j.meta.auth != 'undefined';
+                    key = `<span class="test-res-${ok}">у відповіді мають бути метадані з полем 'auth'</span>`;
+                    report[key] = ok ? "++" : "--";
 
-                default: throw "testAttr not recognized: " + testAttr;
+                    ok = ok
+                        && typeof j.meta.auth.status != 'undefined'
+                        && typeof j.meta.auth.data != 'undefined';
+                    key = `<span class="test-res-${ok}">у полі 'auth' мають бути два полі: 'status' i 'data'</span>`;
+                    report[key] = ok ? "++" : "--";
+
+                    ok = j.meta.auth.status === false;
+                    key = `<span class="test-res-${ok}">поле 'status' повинно дорівнювати false</span>`;
+                    report[key] = ok ? "++" : "--";
+
+                    let data = String(j.meta.auth.data);
+                    ok = /\bexp\b/i.test(data);
+                    key = `<span class="test-res-${ok}">поле 'data' повинно містити слово 'exp'</span>`;
+                    report[key] = ok ? "++" : "--";
+
+                    let m = data.match(/(\d+)/);
+                    ok = (m != null);
+                    key = `<span class="test-res-${ok}">у полі 'data' повинно бути число (секунди)</span>`;
+                    report[key] = ok ? "++" : "--";
+
+                    if(m) {
+                        key = `<span class="test-res-true">seconds: ${parseInt(m[1])}</span>`;
+                        report[key] = "++";
+                    }
+
+                    break;
+
+                default:
+                    throw "testAttr not recognized: " + testAttr;
             }
+
             res.innerHTML += objToHtml(report);
             res.innerHTML += "<hr/>";
             res.innerHTML += objToHtml(j);

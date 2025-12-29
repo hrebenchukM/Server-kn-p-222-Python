@@ -151,7 +151,9 @@ def validate_jwt(jwt:str) -> dict :
         raise ValueError("nbf")
 
     if exp and exp < now:
-        raise ValueError("exp")
+        dt = int(now - exp)
+        raise ValueError("exp " + str(dt))
+
 
     if not nbf and not exp and iat and iat > now:
         raise ValueError("iat")
