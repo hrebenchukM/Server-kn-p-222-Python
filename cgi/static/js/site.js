@@ -1,3 +1,8 @@
+let selfTestsTotal = 0;
+let selfTestsDone = 0;
+let selfTestsPassed = 0;
+
+
 document.addEventListener('DOMContentLoaded', () => {
     initApiTests();
     initTokenTests();
@@ -11,7 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function allTestsClick() {
-    for (let btn of  document.querySelectorAll("[data-selftest] [data-token]")) {
+    selfTestsTotal = document.querySelectorAll("[data-selftest] [data-token]").length;
+    selfTestsDone = 0;
+    selfTestsPassed = 0;
+
+    for (let btn of document.querySelectorAll("[data-selftest] [data-token]")) {
         btn.click();
     }
 }
@@ -32,7 +41,7 @@ function selfTestClick(e) {
         return r.json();
     })
 
-  .then(j => {
+   .then(j => {
         let cls, expected, param, isPassed = true, cond;
 
         // Status.code
@@ -93,9 +102,41 @@ function selfTestClick(e) {
             `<span class="test-res-${isPassed}">
                 ${isPassed ? "OK" : "FAIL"}
              </span>`;
+
+
+        selfTestsDone++;
+        if(isPassed) selfTestsPassed++;
+
+        if(selfTestsDone === selfTestsTotal) {
+            showSelfTestsSummary();
+        }
+
     });
 
 }
+
+function showSelfTestsSummary() {
+    let ok = selfTestsPassed === selfTestsTotal;
+    let summary = document.getElementById("self-tests-summary");
+
+    if(!summary) {
+        summary = document.createElement("div");
+        summary.id = "self-tests-summary";
+        document.body.appendChild(summary);
+    }
+
+    summary.innerHTML = `
+        <hr/>
+        <h2>Зведений звіт самотестування</h2>
+        <span class="test-res-${ok}">
+            ${ok
+                ? `ВСІ ТЕСТИ ПРОЙДЕНО (${selfTestsPassed}/${selfTestsTotal})`
+                : `ТЕСТИ ПРОЙДЕНО ЧАСТКОВО (${selfTestsPassed}/${selfTestsTotal})`
+            }
+        </span>
+    `;
+}
+
 
 
 function initTokenTests() {
