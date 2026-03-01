@@ -1,4 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import os
 from urllib.parse import unquote_plus
 import socket
 from http.server import BaseHTTPRequestHandler
@@ -57,7 +58,7 @@ class AccessManagerRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(414)
                 return
 
-            # Якщо запит порожній — закриваємо з'єднання
+            # Якщо запи+т порожній — закриваємо з'єднання
             if not self.raw_requestline:
                 self.close_connection = 1
                 return
@@ -108,15 +109,22 @@ class MainHandler(AccessManagerRequestHandler):
         # якщо запит — не каталог, пробуємо віддати файл
         if not self.path.endswith('/') and not '../' in self.path:
             try:
-                dot_index = self.path.rindex('.')
-                ext = self.path[dot_index:]
-                mime_type = white_mime[ext]
-
                 fname = "./http/assets" + self.path
+                # print(fname)
 
                 with open(fname, "rb") as file:
                     self.send_response(200, "OK")
-                    self.send_header("Content-Type", mime_type)
+
+                    # просте визначення типу файлу
+                    if fname.endswith(".png"):
+                        self.send_header("Content-Type", "image/png")
+                    elif fname.endswith(".jpg") or fname.endswith(".jpeg"):
+                        self.send_header("Content-Type", "image/jpeg")
+                    elif fname.endswith(".ico"):
+                        self.send_header("Content-Type", "image/x-icon")
+                    else:
+                        self.send_header("Content-Type", "application/octet-stream")
+
                     self.end_headers()
                     self.wfile.write(file.read())
                     return
@@ -162,7 +170,35 @@ class MainHandler(AccessManagerRequestHandler):
                     ),
                     value
                 ]
+        # -------- БІЛИЙ ПЕРЕЛІК ТИПІВ --------
+        assets_dir = "./http/assets"
+        white_rows = ""
 
+        if os.path.exists(assets_dir):
+            for file in os.listdir(assets_dir):
+                ext = os.path.splitext(file)[1].lower()
+
+                if ext in white_mime:
+                    example = ""
+
+                    # Для зображень
+                    if "image" in white_mime[ext]:
+                        # example = "[image]"
+                        example = f'<img src="/{file}" height="40">'
+
+                    # Для json
+                    elif ext == ".json":
+                        example = "[json]"
+
+                    else:
+                        example = file
+
+                    white_rows += f"""
+                        <tr>
+                            <td>{ext}</td>
+                            <td>{example}</td>
+                        </tr>
+                    """
         # -------- Response --------
         self.send_response(200, "OK")
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -271,7 +307,14 @@ class MainHandler(AccessManagerRequestHandler):
                 </tr>
                 {table_rows}
             </table>
-
+                <h2>Дозволені типи</h2>
+                <table>
+                    <tr>
+                        <th>Тип</th>
+                        <th>Приклад</th>
+                    </tr>
+                    {white_rows if white_rows else "<tr><td colspan='2'>Файли не знайдені</td></tr>"}
+                </table>
             <hr/>
 
             <button onclick="sendLink()">Send LINK Request</button>

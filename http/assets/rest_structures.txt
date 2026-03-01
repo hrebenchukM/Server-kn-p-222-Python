@@ -1,0 +1,13 @@
+REST Object Example:
+{
+    "id": 10,
+    "name": "Mariia",
+    "role": "student"
+}
+
+REST Array Example:
+[
+    {"id": 1, "name": "Anna"},
+    {"id": 2, "name": "Ivan"},
+    {"id": 3, "name": "Oleh"}
+]
