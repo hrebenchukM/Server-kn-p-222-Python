@@ -13,7 +13,11 @@
     <h1>HomeController::GET</h1>
 
     <img src="Python.png" width="100" alt="logo" />  
-
+    <button onclick="getUser()">GET /user</button>
+    <button onclick="postUser()">POST /user</button>
+    <button onclick="getLink()">LINK /user</button>
+    <p id = "outText"></p>
+    <pre id = "outJson"></pre>
     <table>
         <tr>
             <th>Parameter</th>
@@ -60,6 +64,20 @@
     </table>
 
 </div>
+    <script>
+        function sendUser(method) {
+            fetch("/user", { method })
+            .then(r => {
+                r.text().then(t => {
+                    outText.innerText = t;
+                    outJson.innerText = JSON.stringify(JSON.parse(t), null, 4);
+                });
+            });
+        }
 
+        function postUser() { sendUser("POST") }
+        function getUser() { sendUser("GET") }
+        function getLink() { sendUser("LINK") }
+    </script>
 </body>
 </html>
