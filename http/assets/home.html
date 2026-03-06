@@ -2,71 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Py Http Home</title>
     <link rel="icon" href="Python.png" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="container">
-
+    <div class="container">
     <h1>HomeController::GET</h1>
+    <img src="Python.png?ver=1.1" width=100 alt="logo" /><br/>
+    <button onclick="sendUser('GET')">GET /user</button>
+    <button onclick="sendUser('POST')">POST /user</button>
+    <button onclick="sendUser('LINK')">LINK /user</button>
+    <button onclick="sendUser('LINK', '')">LINK /home</button>
+    <button onclick="sendUser('GET', 'none')">GET /none</button>
+    <button onclick="sendUser('GET', 'wrong')">GET /wrong</button>
+    <button onclick="sendUser('GET', 'noserve')">GET /noserve</button>
+    <button onclick="sendUser('GET', 'except')">GET /except</button>
+    <p id="outText"></p>
+    <pre id="outJson"></pre>
 
-    <img src="Python.png" width="100" alt="logo" />  
-    <button onclick="getUser()">GET /user</button>
-    <button onclick="postUser()">POST /user</button>
-    <button onclick="getLink()">LINK /user</button>
-    <p id = "outText"></p>
-    <pre id = "outJson"></pre>
     <table>
         <tr>
             <th>Parameter</th>
             <th>Value</th>
         </tr>
-
         <tr>
             <td><b>Full Path</b></td>
             <td>{self.handler.path}</td>
         </tr>
-
         <tr>
             <td><b>Controller</b></td>
             <td>HomeController</td>
         </tr>
-
         <tr>
             <td><b>Query String</b></td>
             <td>{self.handler.query_string}</td>
         </tr>
-
         <tr>
             <td><b>Query Params</b></td>
             <td>{self.handler.query_params}</td>
         </tr>
-
         <tr>
             <td><b>Service</b></td>
             <td>{self.handler.service}</td>
         </tr>
-
         <tr>
             <td><b>Service Param</b></td>
             <td>{self.handler.service_param}</td>
         </tr>
-
-        <tr>
-            <td><b>Rest Structures</b></td>
-            <td>
-                <pre>{rest_structures}</pre>
-            </td>
-        </tr>
-
     </table>
-
-</div>
+    </div>
     <script>
-        function sendUser(method) {
-            fetch("/user", { method })
+        function sendUser(method, service="user") {
+            fetch(`/${service}`, { method })
             .then(r => {
                 r.text().then(t => {
                     outText.innerText = t;
@@ -74,10 +63,6 @@
                 });
             });
         }
-
-        function postUser() { sendUser("POST") }
-        function getUser() { sendUser("GET") }
-        function getLink() { sendUser("LINK") }
     </script>
 </body>
 </html>
