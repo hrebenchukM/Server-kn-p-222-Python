@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+<h1>-_- Контекст та передача даних до шаблону -_-</h1>
+
+<p>
+Контекст (контекст запиту) - оточення через яке передаються дані для шаблону відображення.
+З точки зору мови програмування - це <code>dict</code>: структура в стилі ключ-значення.
+Ключі dict стають змінними контексту.
+</p>
+
+<p>
+Дані передаються через інструкцію <code>template.render(context, request)</code>,
+у шаблоні дані доступні через спец. синтаксис:
+<code>{{ x }}</code>
+</p>
+
+<p>
+x = {{x}}, str = {{str}}
+</p>
+<p>
+{% for key, value in context.items %}
+    {{ key }}: {{ value }}<br>
+{% endfor %}
+</p>
+
+<p>
+матеріали відображені {{ now|date:"d.m.Y" }} о {{ now|date:"H:i" }}
+</p>
+</body>
+</html>
