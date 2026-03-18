@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.home, name='index'),
     path('home/', views.home, name='home'),
     path('transfer/', views.transfer, name='transfer'),
+    path('static-page/', views.static_page, name='static'),
 ]

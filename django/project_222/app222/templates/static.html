@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Static Files{% endblock %}
+
+{% block main_content %}
+
+<h1>Інструкція зі статичними файлами</h1>
+
+<section>
+    <h2>1. Підключення static</h2>
+    <p>
+        У шаблоні необхідно додати:
+        <code>{% load static %}</code>
+    </p>
+</section>
+
+<section>
+    <h2>2. Підключення CSS</h2>
+    <p>
+        <code>&lt;link rel="stylesheet" href="{% static 'css/site.css' %}"&gt;</code>
+    </p>
+</section>
+
+<section>
+    <h2>3. Зображення</h2>
+    <img src="{% static 'img/Python.png' %}" width="200">
+</section>
+
+<section>
+    <h2>4. PDF файл</h2>
+    <a href="{% static 'files/example.pdf' %}" target="_blank">
+        Відкрити PDF
+    </a>
+</section>
+
+<section>
+    <h2>5. Аудіо</h2>
+    <audio controls>
+        <source src="{% static 'media/audio.mp3' %}" type="audio/mpeg">
+    </audio>
+</section>
+
+<section>
+    <h2>6. Відео</h2>
+    <video width="320" controls>
+        <source src="{% static 'media/video.mp4' %}" type="video/mp4">
+    </video>
+</section>
+
+{% endblock %}
