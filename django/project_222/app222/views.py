@@ -30,8 +30,6 @@ def static_page(request):
     template = loader.get_template('static.html')
     return HttpResponse(template.render({}, request))
 
-'''
-Д.З. Створити сторінку з інструкцією встановлення і налаштування 
-статичних файлів. Помістити на сторінку кілька ресурсів різного 
-типу: зображення, PDF-посилання, аудіо та/чи відеофайл
-'''
+def forms(request):
+    template = loader.get_template('forms.html')
+    return HttpResponse(template.render({}, request))

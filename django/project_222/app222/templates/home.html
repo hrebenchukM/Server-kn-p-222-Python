@@ -3,12 +3,34 @@
 {% block title %}Home{% endblock %}
 
 {% block main_content %}
-    <h1>Знайомство з Django</h1>
-    <h2>Зміст</h2>
-    <h3>
-        <a href="/transfer/">Контекст та передача даних до шаблону</a>
-        <a href="/static-page/">Сторінка статичних файлів</a>
-    </h3>
+
+<h2 class="mb-3">Знайомство з Django</h2>
+
+<div class="list-group mb-3">
+
+<div class="list-group-item bg-secondary-subtle text-secondary-emphasis">
+    Зміст
+</div>
+    <a href="{% url 'transfer' %}"
+    class="list-group-item list-group-item-action">
+        <i class="bi bi-braces me-2"></i>
+        Контекст та передача даних до шаблону
+    </a>
+
+    <a href="{% url 'forms' %}" class="list-group-item list-group-item-action">
+        <i class="bi bi-card-list me-2 text-secondary"></i>
+        Форми. Передача даних.
+    </a>
+
+    <a href="#" class="list-group-item list-group-item-action">
+        <i class="bi bi-shield-check me-2"></i>
+        Політика конфіденційності
+    </a>
+      <a href="/static-page/" class="list-group-item list-group-item-action">(-_-) Сторінка статичних файлів
+    </a>
+</div>
+
+
 {% endblock %}
 
     
