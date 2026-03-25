@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
 import datetime
-
+from .forms.demo_form import DemoForm
 
 def hello(request):
     return HttpResponse("Hello, World!")
@@ -32,4 +32,7 @@ def static_page(request):
 
 def forms(request):
     template = loader.get_template('forms.html')
-    return HttpResponse(template.render({}, request))
+    context = {
+        'demo_form': DemoForm(request.POST) if request.method == 'POST' else DemoForm()
+    }
+    return HttpResponse(template.render(context, request))

@@ -1,20 +1,91 @@
 {% extends 'layout.html' %}
 
-{% block title %}Forms{% endblock %}
+{% block title %}Validation{% endblock %}
 
 {% block main_content %}
+<h1 class="mb-4">Форми. Стилізація. Валідація.</h1>
 
-<h1 class="display-5">Форми. Передача даних.</h1>
+<form method="post" class="mb-4">
+    {% csrf_token %}
 
-<p class="mt-3">
-    <i class="bi bi-braces me-2 text-secondary"></i>
-    Робота з формами у Django зводиться до роботи з спеціалізованими класами Python,
-    поля якого відповідають за склад HTML-форми.
+    <!-- NAME -->
+    <div class="input-group mb-3">
+        <label
+            class="input-group-text"
+            for="{{ demo_form.name.id_for_label }}"
+            id="{{ demo_form.name.id_for_label }}-addon">
+            <i class="bi bi-person-badge"></i>
+        </label>
+
+<input
+    type="text"
+    class="form-control 
+        {% if demo_form.name.errors %}is-invalid
+        {% elif demo_form.is_bound %}is-valid{% endif %}"
+    id="{{ demo_form.name.id_for_label }}"
+    name="{{ demo_form.name.html_name }}"
+    value="{{ demo_form.name.value|default_if_none:'' }}"
+    placeholder="{{ demo_form.name.label }}"
+>
+
+<div class="invalid-feedback">
+    {{ demo_form.name.errors }}
+</div>
+
+{% if not demo_form.name.errors and demo_form.is_bound %}
+<div class="valid-feedback">
+    {{ demo_form.success_messages.name }}
+</div>
+{% endif %}
+    </div>
+
+    <!-- SURNAME -->
+    <div class="input-group mb-3">
+        <label
+            class="input-group-text"
+            for="{{ demo_form.surname.id_for_label }}"
+            id="{{ demo_form.surname.id_for_label }}-addon">
+            <i class="bi bi-person-vcard fs-4"></i>
+        </label>
+
+<input
+    type="text"
+    class="form-control 
+        {% if demo_form.surname.errors %}is-invalid
+        {% elif demo_form.is_bound %}is-valid{% endif %}"
+    id="{{ demo_form.surname.id_for_label }}"
+    name="{{ demo_form.surname.html_name }}"
+    value="{{ demo_form.surname.value|default_if_none:'' }}"
+    placeholder="{{ demo_form.surname.label }}"
+>
+
+<div class="invalid-feedback">
+    {{ demo_form.surname.errors }}
+</div>
+
+{% if not demo_form.surname.errors and demo_form.is_bound %}
+<div class="valid-feedback">
+    {{ demo_form.success_messages.surname }}
+</div>
+{% endif %}
+    </div>
+
+    <button class="btn btn-primary">Send</button>
+</form>
+
+<hr>
+
+<p class="text-muted mt-3">
+    Базовий вигляд: не включають кнопки надсилання, а також тег форми.
+    При використанні методу POST до форми необхідно додавати csrf_token —
+    Cross Site Request Forgery token — захисний механізм від форм, що надсилаються з інших сайтів
 </p>
 
-<p>
-    <i class="bi bi-ui-checks me-2 text-secondary"></i>
-    Класи-форми прийнято групувати за відповідною тематикою.
-</p>
+<b class="d-block mt-3">demo_form.as_p — на базі параграфів</b>
+<form method="post" class="mt-2">
+    {% csrf_token %}
+    {{ demo_form.as_p }}
+    <button class="btn btn-primary mt-2">Send</button>
+</form>
 
 {% endblock %}
