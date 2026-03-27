@@ -8,4 +8,5 @@ urlpatterns = [
     path('transfer/', views.transfer, name='transfer'),
     path('static-page/', views.static_page, name='static'),
     path('forms/', views.forms, name='forms'),
+    path('models/', views.models, name='models'),
 ]

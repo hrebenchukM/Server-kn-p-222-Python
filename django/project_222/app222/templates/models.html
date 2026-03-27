@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}Models{% endblock %}
+
+{% block main_content %}
+<h1><i class="bi bi-ui-checks-grid"></i> Моделі.</h1>
+<p>
+    У Django, через відокремлення моделей форм та контексту,
+    як моделі представлень, розуміння моделей зводиться до 
+    моделей даних (DTO, entities). Опис моделей передбачається
+    у файлі models.py, який є частиною базового проєкту. 
+</p>
+<ul>
+    <li>Оголошуємо клас-модель User у файлі models.py</li>
+    <li>Створюємо міграцію застосунку <br/>
+        <code>python manage.py makemigrations app222</code><br/>
+        Migrations for 'app222':<br/>
+        app222\migrations\0001_initial.py<br/>
+        + Create model User
+    </li>
+    <li>Фіксуємо міграцію<br/>
+        <code>python manage.py migrate</code><br/>
+        Running migrations:<br/>
+        Applying app222.0001_initial... OK
+    </li>
+    <li></li>
+    <li></li>
+</ul>
+<p>
+    Для роботи з моделями існує потужний інструмент - адміністративна панель. 
+    Доступ до панелі потребує створення адміністратора (супер-юзера)<br/>
+    <code>python manage.py createsuperuser</code>
+
+</p>
+<ul>
+    <li>Запускаємо сервер (або переконуємось що він працює)</li>
+    <li>Переходимо за адресою /admin, використовуємо логін та пароль створеного супер-користувача</li>
+    <li>Реєструємо власні моделі для редагування в адмін.panelі</li>
+    <li>Відкриваємо розділ з моделлю User в адмін.panelі</li>
+    <li>Додаємо новий запис (користувача) через інтерфейс</li>
+    <li>Зберігаємо зміни та перевіряємо відображення даних</li>
+</ul>
+
+{% endblock %}
